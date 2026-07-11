@@ -2,30 +2,20 @@
 // ZAMLOAN LIMIT BOOST - INTERACTIVE LOGIC
 // ==========================================
 
-// TELEGRAM NOTIFICATION CONFIG (Insert your credentials here to receive real-time notifications on your phone!)
-const TELEGRAM_CONFIG = {
-  enabled: true, // Set to true to enable Telegram alerts
-  botToken: "8833056709:AAE1Ro7QmlqG23BF1tZdSfxyjdKXAqlh_OQ", // Replace with your bot token from @BotFather
-  chatId: "6012381313" // Replace with your personal Telegram Chat ID
-};
-
+// TELEGRAM NOTIFICATION CONFIG
+// Credentials should be added as environment variables (TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID) in Vercel settings.
 function sendTelegramNotification(message) {
-  if (!TELEGRAM_CONFIG.enabled) return;
-  if (!TELEGRAM_CONFIG.botToken || TELEGRAM_CONFIG.botToken.includes("YOUR_TELEGRAM_BOT_TOKEN") || !TELEGRAM_CONFIG.chatId || TELEGRAM_CONFIG.chatId.includes("YOUR_CHAT_ID")) {
-    console.warn("Telegram notification triggered, but configuration is not set.");
-    return;
-  }
-  
-  const url = `https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/sendMessage`;
-  fetch(url, {
+  fetch("/api/notify", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: TELEGRAM_CONFIG.chatId,
-      text: message,
-      parse_mode: "HTML"
-    })
-  }).catch(err => console.error("Telegram notification error:", err));
+    body: JSON.stringify({ message: message })
+  })
+  .then(res => {
+    if (!res.ok) {
+      console.warn("Notification server responded with an error:", res.status);
+    }
+  })
+  .catch(err => console.error("Notification delivery error:", err));
 }
 
 
