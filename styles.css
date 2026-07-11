@@ -1465,14 +1465,63 @@ body::after {
 }
 
 @media (max-width: 768px) {
+  .container {
+    padding: 0 16px;
+  }
+  .navbar {
+    padding: 12px 0;
+  }
+  .nav-links {
+    display: none;
+  }
+  .logo-text {
+    gap: 2px;
+  }
+  .brand-name {
+    font-size: 1rem;
+  }
+  .brand-badge {
+    font-size: 0.55rem;
+  }
   .hero-title {
-    font-size: 2.4rem;
+    font-size: 2.1rem;
+    line-height: 1.25;
+  }
+  .hero-description {
+    font-size: 0.95rem;
+    margin-bottom: 30px;
+  }
+  .hero-stats {
+    flex-wrap: wrap;
+    gap: 20px 30px;
+    justify-content: center;
+  }
+  .stat-val {
+    font-size: 1.5rem;
+  }
+  .stat-lbl {
+    font-size: 0.75rem;
+  }
+  .hero-trust {
+    justify-content: center;
   }
   .steps-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .packages-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .package-card {
+    padding: 24px;
+  }
+  .glass-card {
+    padding: 20px;
   }
   .form-row {
     grid-template-columns: 1fr;
+    gap: 15px;
   }
   .provider-cards {
     grid-template-columns: 1fr;
@@ -1491,7 +1540,6 @@ body::after {
     flex-direction: column;
     gap: 8px;
     text-align: center;
-  }
   }
 }
 
