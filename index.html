@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zamloan Limit Boost | Instant Borrowing Limit Upgrade</title>
+  <!-- Google Fonts for premium typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Floating Toast Notifications (Live Limit Updates) -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Header / Navigation -->
+  <header class="navbar">
+    <div class="container nav-wrapper">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="brand-name">ZAM<span>LOAN</span></span>
+          <span class="brand-badge">LIMIT BOOST</span>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="#how-it-works" class="nav-link">How It Works</a>
+        <a href="#packages" class="nav-link">Tiers</a>
+        <a href="#reviews" class="nav-link">Testimonials</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="nav-btn-outline" onclick="scrollToPackages()">Boost Now</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section" id="hero">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="badge-pill">
+          <span class="pulse-dot"></span>
+          Regulated & Secure Mobile Money Boost
+        </div>
+        <h1 class="hero-title">
+          Get an Instant <br>
+          <span class="highlight-text">Zamloan Limit Boost</span>
+        </h1>
+        <p class="hero-description">
+          Need a higher borrowing limit? Upgrade your account status instantly. Choose a boost package, confirm the Mobile Money STK Push on your phone, and unlock higher loan limits in seconds.
+        </p>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-val">30s</span>
+            <span class="stat-lbl">Average Boost Time</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-val">K75,000</span>
+            <span class="stat-lbl">Max Borrowing Limit</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-val">100%</span>
+            <span class="stat-lbl">Approval Guarantee</span>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn-primary ripple" onclick="scrollToPackages()">
+            <span>UPGRADE YOUR LIMIT NOW</span>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
+        <div class="hero-trust">
+          <div class="trust-pill">⚡ Direct STK Push</div>
+          <div class="trust-pill">🔒 Bank-grade Encryption</div>
+          <div class="trust-pill">🇿🇲 Bank of Zambia Compliant</div>
+        </div>
+      </div>
+
+      <!-- Quick Action Card -->
+      <div class="hero-card-wrapper">
+        <div class="glass-card hero-calculator-card">
+          <div class="card-header">
+            <h3>Instant Limit Calculator</h3>
+            <p>Slide to estimate your package</p>
+          </div>
+          <div class="calc-inputs">
+            <div class="calc-slider-group">
+              <div class="slider-label">
+                <span>Target Limit</span>
+                <strong id="calcLimitLabel">K12,500</strong>
+              </div>
+              <input type="range" id="calcLimitSlider" min="1500" max="75000" step="500" value="12500" class="premium-slider">
+              <div class="slider-limits">
+                <span>K1,500</span>
+                <span>K75,000</span>
+              </div>
+            </div>
+            
+            <div class="calc-breakdown">
+              <div class="breakdown-row">
+                <span>Current Status Limit</span>
+                <span class="value strikethrough text-muted">K200 - K500</span>
+              </div>
+              <div class="breakdown-row highlight-green">
+                <span>Upgraded Limit</span>
+                <span class="value" id="calcTargetLimitVal">K12,500</span>
+              </div>
+              <div class="breakdown-row border-top">
+                <span>One-time Boost Fee</span>
+                <span class="value accent-gold" id="calcBoostFeeVal">K399</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn-primary full-width" onclick="selectCalcPackage()">
+            <span>Claim This Limit Upgrade</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works-section" id="how-it-works">
+    <div class="container">
+      <div class="section-title text-center">
+        <h2>How It Works</h2>
+        <p>Follow three simple steps to increase your borrowing limit instantly</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h3>Select Tier</h3>
+          <p>Choose your desired borrowing limit tier. Higher tiers unlock larger loans and longer repayment terms.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <h3>Verify details</h3>
+          <p>Enter your active Zambian Mobile Money number and NRC number to authorize the profile linkage.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h3>Confirm STK Push</h3>
+          <p>You will receive an automatic PIN prompt on your phone. Input your MTN MoMo, Airtel, or Zamtel PIN to complete the boost.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Packages Section -->
+  <section class="packages-section" id="packages">
+    <div class="container">
+      <div class="section-title text-center">
+        <h2>Choose Your Limit Upgrade</h2>
+        <p>Select the tier that fits your financing needs. Fast disbursement, no waiting period.</p>
+      </div>
+      <div class="packages-grid" id="packagesGrid">
+        <!-- Rendered dynamically by JavaScript -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Checkout View (Initially hidden, revealed on package click) -->
+  <section class="checkout-section hidden" id="checkout">
+    <div class="container">
+      <div class="checkout-wrapper glass-card">
+        <div class="checkout-grid">
+          
+          <!-- Payment form details -->
+          <div class="checkout-form-area">
+            <div class="checkout-header">
+              <h2>Secure Checkout</h2>
+              <p>Authorize STK Push to complete your borrowing limit upgrade</p>
+            </div>
+
+            <!-- Provider Selector -->
+            <div class="provider-selector">
+              <label class="input-label">Select Mobile Money Network</label>
+              <div class="provider-cards">
+                <div class="provider-card active" data-provider="mtn" onclick="selectProvider('mtn')">
+                  <div class="provider-logo mtn-logo">MTN</div>
+                  <span class="provider-name">MTN MoMo</span>
+                  <span class="provider-badge">Popular</span>
+                </div>
+                <div class="provider-card" data-provider="airtel" onclick="selectProvider('airtel')">
+                  <div class="provider-logo airtel-logo">Airtel</div>
+                  <span class="provider-name">Airtel Money</span>
+                  <span class="provider-badge">Instant</span>
+                </div>
+                <div class="provider-card" data-provider="zamtel" onclick="selectProvider('zamtel')">
+                  <div class="provider-logo zamtel-logo">Zamtel</div>
+                  <span class="provider-name">Zamtel Cash</span>
+                  <span class="provider-badge">Low Fee</span>
+                </div>
+              </div>
+            </div>
+
+            <form id="paymentForm" class="checkout-form" onsubmit="handlePaymentSubmit(event)">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="phoneNumber" class="input-label">Mobile Money Number</label>
+                  <div class="input-wrapper">
+                    <span class="phone-prefix" id="phonePrefix">+260</span>
+                    <input type="tel" id="phoneNumber" placeholder="97XXXXXXX" required>
+                  </div>
+                  <small class="form-helper">Enter the phone number registered with MTN/Airtel/Zamtel</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="nrcNumber" class="input-label">NRC (National Registration Card)</label>
+                  <input type="text" id="nrcNumber" placeholder="XXXXXX/XX/X" required>
+                  <small class="form-helper">Format: 6 digits / 2 digits / 1 digit (e.g. 123456/78/9)</small>
+                </div>
+              </div>
+
+              <!-- Invisible properties holding selected package details -->
+              <input type="hidden" id="selectedPackageId" value="">
+              <input type="hidden" id="selectedPackageLimit" value="0">
+              <input type="hidden" id="selectedPackageFee" value="0">
+
+              <button type="submit" class="btn-primary full-width font-large shadow-glow ripple">
+                <span id="submitButtonText">PAY K399 VIA STK PUSH</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Checkout summary sidebar -->
+          <div class="checkout-summary-area">
+            <div class="summary-card">
+              <h3>Boost Summary</h3>
+              <div class="summary-item">
+                <span>Selected Package</span>
+                <strong id="summaryTierName">Gold Upgrade</strong>
+              </div>
+              <div class="summary-item">
+                <span>Target Loan Limit</span>
+                <strong id="summaryLimit" class="highlight-green">K12,500</strong>
+              </div>
+              <div class="summary-item">
+                <span>Disbursement Wallet</span>
+                <strong id="summaryWallet">MTN MoMo (+260)</strong>
+              </div>
+              <div class="summary-total">
+                <span>Total Boost Fee</span>
+                <strong id="summaryTotalFee">K399</strong>
+              </div>
+
+              <div class="checkout-instructions">
+                <h4>Payment Instructions</h4>
+                <ol>
+                  <li>Ensure your SIM card is active and in this device.</li>
+                  <li>Have your Mobile Money PIN ready.</li>
+                  <li>Click "PAY VIA STK PUSH".</li>
+                  <li>Wait for the prompt to display on your screen and authorize it.</li>
+                </ol>
+              </div>
+
+              <button class="btn-secondary full-width" onclick="cancelCheckout()">
+                ← Choose Another Package
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="reviews-section" id="reviews">
+    <div class="container">
+      <div class="section-title text-center">
+        <h2>What Zamloan Users Say</h2>
+        <p>Read review logs from borrowers across Zambia who boosted their limits</p>
+      </div>
+      <div class="reviews-grid">
+        <div class="review-card">
+          <div class="review-meta">
+            <div class="user-avatar">MK</div>
+            <div>
+              <div class="user-name">Mwansa K.</div>
+              <div class="user-loc">Lusaka, Zambia</div>
+            </div>
+            <div class="rating-stars">★★★★★</div>
+          </div>
+          <p class="review-text">"My business needed emergency stocks and my borrowing limit was stuck at K300. I upgraded to Gold and within 30 seconds of completing the Airtel STK push, my limit changed to K12,500. Highly recommended!"</p>
+          <div class="review-tag">Gold Boost • Airtel</div>
+        </div>
+        <div class="review-card">
+          <div class="review-meta">
+            <div class="user-avatar">CL</div>
+            <div>
+              <div class="user-name">Chipo L.</div>
+              <div class="user-loc">Ndola, Zambia</div>
+            </div>
+            <div class="rating-stars">★★★★★</div>
+          </div>
+          <p class="review-text">"Outstanding service! I was skeptical at first, but the MTN MoMo prompt popped up instantly on my phone. Verified my NRC, entered my PIN, and got my limit upgraded to K5,000 right away."</p>
+          <div class="review-tag">Silver Boost • MTN</div>
+        </div>
+        <div class="review-card">
+          <div class="review-meta">
+            <div class="user-avatar">BN</div>
+            <div>
+              <div class="user-name">Bright N.</div>
+              <div class="user-loc">Kitwe, Zambia</div>
+            </div>
+            <div class="rating-stars">★★★★★</div>
+          </div>
+          <p class="review-text">"I boosted to Platinum (K30,000 limit) to fund farming equipment for my maize field. Process was simple, fast, and secure. Already paid off my first loan, and my credit rating is perfect."</p>
+          <div class="review-tag">Platinum Boost • Zamtel</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STK Processing Modal -->
+  <div class="modal-overlay hidden" id="stkModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-icon spinner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+            <path d="M12 2a10 10 0 0 1 10 10"></path>
+          </svg>
+        </div>
+        <h3 id="modalTitle">Sending STK Push</h3>
+        <p id="modalSub">Do not close this screen or lock your device</p>
+      </div>
+
+      <div class="modal-content">
+        <!-- Progress Steps -->
+        <div class="progress-stepper">
+          <div class="step active" id="step1">
+            <div class="step-indicator">
+              <span class="step-num-val">1</span>
+              <span class="step-check-icon">✓</span>
+            </div>
+            <div class="step-details">
+              <h4>Initiating Transaction</h4>
+              <p>Connecting to secure mobile payment gateway</p>
+            </div>
+          </div>
+          
+          <div class="step" id="step2">
+            <div class="step-indicator">
+              <span class="step-num-val">2</span>
+              <span class="step-check-icon">✓</span>
+            </div>
+            <div class="step-details">
+              <h4>Awaiting User PIN</h4>
+              <p id="step2Text">Please enter your Mobile Money PIN when the prompt appears</p>
+            </div>
+          </div>
+          
+          <div class="step" id="step3">
+            <div class="step-indicator">
+              <span class="step-num-val">3</span>
+              <span class="step-check-icon">✓</span>
+            </div>
+            <div class="step-details">
+              <h4>Verifying Payment</h4>
+              <p>Confirming funds receipt from telecom network</p>
+            </div>
+          </div>
+
+          <div class="step" id="step4">
+            <div class="step-indicator">
+              <span class="step-num-val">4</span>
+              <span class="step-check-icon">✓</span>
+            </div>
+            <div class="step-details">
+              <h4>Upgrading Zamloan Profile</h4>
+              <p>Applying limit boost and activating profile tiers</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Success card (Revealed at the end) -->
+        <div class="success-alert-box hidden" id="modalSuccessBox">
+          <div class="success-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <h3>Limit Boost Success!</h3>
+          <p>Your profile has been upgraded. Your new borrowing limit has been activated.</p>
+          <div class="success-details">
+            <div class="detail-row">
+              <span>Account Number</span>
+              <strong id="successPhone">097*****12</strong>
+            </div>
+            <div class="detail-row">
+              <span>New Limit</span>
+              <strong id="successLimit" class="highlight-green">K12,500</strong>
+            </div>
+            <div class="detail-row">
+              <span>Status</span>
+              <span class="status-pill-green">ACTIVE & INSTANT</span>
+            </div>
+          </div>
+          <button class="btn-primary full-width margin-top" onclick="closeModalAndReset()">
+            Finish Boost Process
+          </button>
+        </div>
+        
+        <!-- Error card (Fallback) -->
+        <div class="error-alert-box hidden" id="modalErrorBox">
+          <div class="error-badge">✕</div>
+          <h3>Transaction Failed</h3>
+          <p id="modalErrorMsg">The transaction was cancelled or timed out.</p>
+          <button class="btn-secondary full-width margin-top" onclick="closeModalAndRetry()">
+            Try Again
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Section -->
+  <footer class="footer-section">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <div class="logo-area">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+          </div>
+          <div class="logo-text">
+            <span class="brand-name">ZAM<span>LOAN</span></span>
+          </div>
+        </div>
+        <p class="brand-subtext">Providing instant digital loan boost facilities to mobile money users across the Republic of Zambia.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Support & Contact</h4>
+        <p>Email: support@zamloan.com</p>
+        <p>Hotline: +260 76 110 5928</p>
+        <p>Hours: Mon - Sat: 08:00 - 18:00</p>
+      </div>
+      <div class="footer-compliance">
+        <h4>Compliance & Licensing</h4>
+        <p>Zamloan Limit Boost products are operated by Zamloans Money Lending Limited, a licensed microfinance provider. Compliance with Bank of Zambia regulations and Mobile Money operator security guidelines is strictly enforced.</p>
+        <p class="security-text">🔒 Secured by MTN MoMo API, Airtel Money Core, and Zamtel Cash PG.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container footer-bottom-wrapper">
+        <p>&copy; 2026 Zamloans Money Lending Ltd. All rights reserved.</p>
+        <p>Strictly for users within Zambia. Terms & Conditions apply.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
